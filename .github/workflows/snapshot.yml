@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  nightly:
+  publish:
     concurrency:
       group: snapshot
       cancel-in-progress: true
