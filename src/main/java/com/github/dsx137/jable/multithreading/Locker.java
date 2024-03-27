@@ -10,7 +10,7 @@ import java.util.function.Function;
  *
  * @param <T> 值的类型
  */
-public class Atomic<T> {
+public class Locker<T> {
     private final ReentrantLock lock = new ReentrantLock();
     private Wrapper<T> value;
 
