@@ -1,0 +1,36 @@
+name: snapshot
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  nightly:
+    concurrency:
+      group: snapshot
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: shadowJar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean shadowJar
+
+      - name: Update Snapshot Release
+        uses: andelf/nightly-release@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: 'snapshot'
+          name: 'snapshot $$-${{ github.run_id }}'
+          prerelease: false
+          body: 'snapshot version'
+          files: |
+            ./build/libs/*
