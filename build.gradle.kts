@@ -1,10 +1,14 @@
 val projectGroup: String by project
 val projectVersion: String by project
 val projectName: String by project
+val projectId: String by project
+val projectRepository: String by project
+val projectLicense: String by project
 
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("maven-publish")
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.spring") version "1.9.22"
 }
@@ -54,4 +58,23 @@ tasks.jar {
 
 tasks.shadowJar {
     minimize()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            artifactId = projectId
+            pom {
+                name.set(projectName)
+                url.set(projectRepository)
+                licenses {
+                    license {
+                        name.set(projectLicense)
+                        url.set(projectRepository)
+                    }
+                }
+            }
+        }
+    }
 }
