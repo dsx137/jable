@@ -7,8 +7,8 @@ import java.util.function.Function;
  * <h1>C# 风格的属性</h1>
  *
  * @param <T> 值的类型
- *            getter: wov -> {}
- *            setter: (wov, nv) -> {}
+ *            <p>getter: wov -> {}</p>
+ *            <p>setter: (wov, nv) -> {}</p>
  */
 public class Property<T> {
     private final Wrapper<T> value; // 这里包装是因为如果setter直接传T类型的对象，直接修改对象本身的值，不会反映到类的成员变量上（引用传递直接修改引用）
