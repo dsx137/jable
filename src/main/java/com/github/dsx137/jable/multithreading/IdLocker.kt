@@ -14,7 +14,7 @@ import kotlin.math.pow
  *
  * <p>用于对id对应的对象的操作进行加锁</p>
  */
-class IdLocker {
+open class IdLocker {
 
     private val idLocks: ConcurrentHashMap<String, ReentrantLock> = ConcurrentHashMap()
 
