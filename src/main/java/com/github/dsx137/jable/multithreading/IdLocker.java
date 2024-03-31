@@ -170,6 +170,8 @@ public class IdLocker {
 
         private static final long maxWaitTime = 10000;
 
+        private static final double factor = 1.1;
+
         public static class Builder {
             private final Function<Supplier<?>, ?> function;
 
@@ -202,7 +204,7 @@ public class IdLocker {
                         return (R) this.function.apply(action);
                     } catch (TryComputeException ignored) {
                         try {
-                            int rawWaitTime = (int) Math.min(maxWaitTime, Math.pow(1.1, retries));
+                            int rawWaitTime = (int) Math.min(maxWaitTime, Math.pow(factor, retries));
                             int waitTime = rawWaitTime + random.nextInt(rawWaitTime);
                             retries++;
                             Thread.sleep(waitTime);
