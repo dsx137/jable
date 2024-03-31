@@ -1,9 +1,9 @@
 package com.github.dsx137.jable.multithreading;
 
 import com.github.dsx137.jable.exception.TryComputeException;
-import com.github.dsx137.jable.misc.Useless;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -122,7 +122,7 @@ public class IdLocker {
                 }
             }
             ReentrantLock lock = this.idLocks.computeIfAbsent(id.toString(), k -> new ReentrantLock());
-            if (lock.tryLock()) {
+            if (!lock.tryLock()) {
                 if (this.metaLock.getReadHoldCount() > 0) {
                     this.idLocksLock.unlock();
                 }
@@ -167,6 +167,9 @@ public class IdLocker {
      * <p>要同时获取多个锁时请使用链</p>
      */
     public static class ComputeChain {
+
+        private static final long maxWaitTime = 10000;
+
         public static class Builder {
             private final Function<Supplier<?>, ?> function;
 
@@ -186,16 +189,27 @@ public class IdLocker {
              * <h1>计算</h1>
              *
              * <p>使用循环获取锁，如果无法获取，则释放持有的锁然后continue</p>
+             * <p>使用指数退避算法</p>
              *
              * @param action 操作
              */
             @SuppressWarnings("unchecked")
             public <R> R compute(Supplier<R> action) {
+                int retries = 0;
+                Random random = new Random();
                 while (true) {
                     try {
                         return (R) this.function.apply(action);
                     } catch (TryComputeException ignored) {
-                        Useless.useless();
+                        try {
+                            int rawWaitTime = (int) Math.min(maxWaitTime, Math.pow(1.1, retries));
+                            int waitTime = rawWaitTime + random.nextInt(rawWaitTime);
+                            retries++;
+                            Thread.sleep(waitTime);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            throw new RuntimeException("Thread interrupted", e);
+                        }
                     }
                 }
             }
@@ -212,7 +226,7 @@ public class IdLocker {
         }
 
         public static Builder bind(IdLocker idLocker, Object id) {
-            return new Builder(f -> idLocker.compute(id, f));
+            return new Builder(f -> idLocker.tryCompute(id, f));
         }
 
         public static Builder bind(IdLocker idLocker) {
