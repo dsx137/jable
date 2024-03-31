@@ -23,27 +23,19 @@ public class Locker<T, L extends Lock> {
     }
 
     public <R> R compute(Function<Wrapper<T>, R> action) {
-        return this.lock.compute(() ->
-                action.apply(this.value)
-        );
+        return this.lock.compute(() -> action.apply(this.value));
     }
 
     public void compute(Consumer<Wrapper<T>> action) {
-        this.lock.compute(() ->
-                action.accept(this.value)
-        );
+        this.lock.compute(() -> action.accept(this.value));
     }
 
     public <R> R tryCompute(Function<Wrapper<T>, R> action) {
-        return this.lock.tryCompute(() ->
-                action.apply(this.value)
-        );
+        return this.lock.tryCompute(() -> action.apply(this.value));
     }
 
     public void tryCompute(Consumer<Wrapper<T>> action) {
-        this.lock.tryCompute(() ->
-                action.accept(this.value)
-        );
+        this.lock.tryCompute(() -> action.accept(this.value));
     }
 
     public static <T, L extends Lock> Locker<T, L> of(T value, L lock) {

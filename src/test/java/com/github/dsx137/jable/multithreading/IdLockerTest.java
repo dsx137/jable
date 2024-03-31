@@ -12,7 +12,7 @@ public class IdLockerTest {
 
     private static final int numberOfThreads = 20;
 
-    private static final int taskTime = 3000;
+    private static final int taskTime = 100;
 
     private static final AtomicInteger counter = new AtomicInteger(0);
 

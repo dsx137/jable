@@ -1,92 +1,87 @@
-package com.github.dsx137.jable.multithreading;
+package com.github.dsx137.jable.multithreading
 
-import com.github.dsx137.jable.exception.TryComputeException;
-
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import com.github.dsx137.jable.exception.TryComputeException
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ThreadLocalRandom
+import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.withLock
+import kotlin.math.min
+import kotlin.math.pow
 
 /**
  * <h1>Id锁</h1>
  *
  * <p>用于对id对应的对象的操作进行加锁</p>
  */
-public class IdLocker {
+class IdLocker {
 
-    protected final Map<String, ReentrantLock> idLocks = new ConcurrentHashMap<>();
+    private val idLocks: ConcurrentHashMap<String, ReentrantLock> = ConcurrentHashMap()
 
-    protected final ReentrantReadWriteLock metaLock = new ReentrantReadWriteLock();
+    private val metaLock = ReentrantReadWriteLock()
 
-    protected final DelegateLock<ReentrantLock> rootLockLock = DelegateLock.of(new ReentrantLock());
+    private val rootLockLock = ReentrantLock()
 
-    protected final ReentrantReadWriteLock.ReadLock idLocksLock = this.metaLock.readLock();
+    private val idLocksLock = this.metaLock.readLock()
 
-    protected final ReentrantReadWriteLock.WriteLock rootLock = this.metaLock.writeLock();
+    private val rootLock = this.metaLock.writeLock()
+
 
     /**
-     * <h1>计算</h1>
-     * <p>对id对应的对象进行操作</p>
+     * # 计算
+     *
+     * 对id对应的对象进行操作
      *
      * @param id     id
      * @param action 操作
      * @param <Rr>   返回值类型
      * @return 返回值
      */
-    public <Rr> Rr compute(Object id, Supplier<Rr> action) {
+    fun <R> compute(id: Any?, action: () -> R): R {
         if (id == null) {
-            this.rootLockLock.compute(() -> {
-                while (this.metaLock.getReadHoldCount() > 0) {
-                    this.idLocksLock.unlock();
+            this.rootLockLock.withLock {
+                while (this.metaLock.readHoldCount > 0) {
+                    this.idLocksLock.unlock()
                 }
-                this.rootLock.lock();
-            });
+                this.rootLock.lock()
+            }
 
             try {
-                return action.get();
+                return action()
             } finally {
-                this.rootLock.unlock();
+                this.rootLock.unlock()
             }
         } else {
-            if (!this.rootLock.isHeldByCurrentThread()) {
-                this.idLocksLock.lock();
+            if (!this.rootLock.isHeldByCurrentThread) {
+                this.idLocksLock.lock()
             }
-            ReentrantLock lock = this.idLocks.computeIfAbsent(id.toString(), k -> new ReentrantLock());
-            lock.lock();
+            val lock = this.idLocks.computeIfAbsent(id.toString()) { ReentrantLock() }
+            lock.lock()
 
             try {
-                return action.get();
+                return action()
             } finally {
                 if (!lock.hasQueuedThreads()) {
-                    this.idLocks.remove(id.toString());
+                    this.idLocks.remove(id.toString())
                 }
-                lock.unlock();
-                if (this.metaLock.getReadHoldCount() > 0) {
-                    this.idLocksLock.unlock();
+                lock.unlock()
+                if (this.metaLock.readHoldCount > 0) {
+                    this.idLocksLock.unlock()
                 }
             }
         }
     }
 
-    public <Rr> Rr compute(Supplier<Rr> action) {
-        return this.compute(null, action);
+    fun <R> compute(action: () -> R): R {
+        return this.compute(null) { action.invoke() }
     }
 
-    public void compute(Runnable action) {
-        this.compute(() -> {
-            action.run();
-            return null;
-        });
+    fun compute(id: Any?, action: Runnable) {
+        this.compute(id) { action.run() }
     }
 
-    public void compute(Object id, Runnable action) {
-        this.compute(id, () -> {
-            action.run();
-            return null;
-        });
+    fun compute(action: Runnable) {
+        this.compute(null) { action.run() }
     }
 
     /**
@@ -99,66 +94,60 @@ public class IdLocker {
      * @param <Rr>   返回值类型
      * @return 返回值
      */
-    public <Rr> Rr tryCompute(Object id, Supplier<Rr> action) {
+    fun <R> tryCompute(id: Any?, action: () -> R): R {
         if (id == null) {
-            this.rootLockLock.compute(() -> {
-                while (this.metaLock.getReadHoldCount() > 0) {
-                    this.idLocksLock.unlock();
+            this.rootLockLock.withLock {
+                while (this.metaLock.readHoldCount > 0) {
+                    this.idLocksLock.unlock()
                 }
                 if (!this.rootLock.tryLock()) {
-                    throw new TryComputeException();
+                    throw TryComputeException()
                 }
-            });
+            }
 
             try {
-                return action.get();
+                return action()
             } finally {
-                this.rootLock.unlock();
+                this.rootLock.unlock()
             }
         } else {
-            if (!this.rootLock.isHeldByCurrentThread()) {
+            if (!this.rootLock.isHeldByCurrentThread) {
                 if (!this.idLocksLock.tryLock()) {
-                    throw new TryComputeException();
+                    throw TryComputeException()
                 }
             }
-            ReentrantLock lock = this.idLocks.computeIfAbsent(id.toString(), k -> new ReentrantLock());
+            val lock = this.idLocks.computeIfAbsent(id.toString()) { ReentrantLock() }
             if (!lock.tryLock()) {
-                if (this.metaLock.getReadHoldCount() > 0) {
-                    this.idLocksLock.unlock();
+                if (this.metaLock.readHoldCount > 0) {
+                    this.idLocksLock.unlock()
                 }
-                throw new TryComputeException();
+                throw TryComputeException()
             }
 
             try {
-                return action.get();
+                return action()
             } finally {
                 if (!lock.hasQueuedThreads()) {
-                    this.idLocks.remove(id.toString());
+                    this.idLocks.remove(id.toString())
                 }
-                lock.unlock();
-                if (this.metaLock.getReadHoldCount() > 0) {
-                    this.idLocksLock.unlock();
+                lock.unlock()
+                if (this.metaLock.readHoldCount > 0) {
+                    this.idLocksLock.unlock()
                 }
             }
         }
     }
 
-    public <Rr> Rr tryCompute(Supplier<Rr> action) {
-        return this.tryCompute(null, action);
+    fun <R> tryCompute(action: () -> R): R {
+        return this.tryCompute(null) { action.invoke() }
     }
 
-    public void tryCompute(Runnable action) {
-        this.tryCompute(() -> {
-            action.run();
-            return null;
-        });
+    fun tryCompute(id: Any?, action: Runnable) {
+        this.tryCompute(id) { action.run() }
     }
 
-    public void tryCompute(Object id, Runnable action) {
-        this.tryCompute(id, () -> {
-            action.run();
-            return null;
-        });
+    fun tryCompute(action: Runnable) {
+        this.tryCompute { action.run() }
     }
 
     /**
@@ -166,73 +155,67 @@ public class IdLocker {
      *
      * <p>要同时获取多个锁时请使用链</p>
      */
-    public static class ComputeChain {
+    class ComputeChain private constructor() {
 
-        private static final long maxWaitTime = 10000;
+        companion object {
+            class Builder internal constructor(
+                private var function: (() -> Any?) -> Any?,
+            ) {
 
-        private static final double factor = 1.1;
+                fun bind(idLocker: IdLocker, id: Any?): Builder {
+                    return Builder { f -> this.function { idLocker.tryCompute(id, f) } }
+                }
 
-        public static class Builder {
-            private final Function<Supplier<?>, ?> function;
+                fun bind(idLocker: IdLocker): Builder {
+                    return bind(idLocker, null)
+                }
 
-            private Builder(Function<Supplier<?>, ?> function) {
-                this.function = function;
-            }
-
-            public Builder bind(IdLocker idLocker, Object id) {
-                return new Builder(f -> this.function.apply(() -> idLocker.tryCompute(id, f)));
-            }
-
-            public Builder bind(IdLocker idLocker) {
-                return bind(idLocker, null);
-            }
-
-            /**
-             * <h1>计算</h1>
-             *
-             * <p>使用循环获取锁，如果无法获取，则释放持有的锁然后continue</p>
-             * <p>使用指数退避算法</p>
-             *
-             * @param action 操作
-             */
-            @SuppressWarnings("unchecked")
-            public <R> R compute(Supplier<R> action) {
-                int retries = 0;
-                Random random = new Random();
-                while (true) {
-                    try {
-                        return (R) this.function.apply(action);
-                    } catch (TryComputeException ignored) {
+                /**
+                 * <h1>计算</h1>
+                 *
+                 * <p>使用循环获取锁，如果无法获取，则释放持有的锁然后continue</p>
+                 * <p>使用指数退避算法</p>
+                 *
+                 * @param action 操作
+                 */
+                @Suppress("UNCHECKED_CAST")
+                fun <R> compute(action: () -> R): R {
+                    var retries = 0
+                    val random = ThreadLocalRandom.current()
+                    while (true) {
                         try {
-                            int rawWaitTime = (int) Math.min(maxWaitTime, Math.pow(factor, retries));
-                            int waitTime = rawWaitTime + random.nextInt(rawWaitTime);
-                            retries++;
-                            Thread.sleep(waitTime);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                            throw new RuntimeException("Thread interrupted", e);
+                            return this.function(action) as R
+                        } catch (ignored: TryComputeException) {
+                            try {
+                                val rawWaitTime = min(MAX_WAIT_TIME, FACTOR.pow(retries).toInt())
+                                val waitTime = rawWaitTime + random.nextInt(rawWaitTime)
+                                retries++
+                                Thread.sleep(waitTime.toLong())
+                            } catch (e: InterruptedException) {
+                                Thread.currentThread().interrupt()
+                                throw RuntimeException("Thread interrupted", e)
+                            }
                         }
                     }
                 }
+
+                fun compute(action: Runnable) {
+                    this.compute { action.run() }
+                }
             }
 
-            public void compute(Runnable action) {
-                this.compute(() -> {
-                    action.run();
-                    return null;
-                });
+            @JvmStatic
+            fun bind(idLocker: IdLocker, id: Any?): Builder {
+                return Builder { f -> idLocker.tryCompute(id, f) }
             }
-        }
 
-        private ComputeChain() {
-        }
+            @JvmStatic
+            fun bind(idLocker: IdLocker): Builder {
+                return bind(idLocker, null)
+            }
 
-        public static Builder bind(IdLocker idLocker, Object id) {
-            return new Builder(f -> idLocker.tryCompute(id, f));
-        }
-
-        public static Builder bind(IdLocker idLocker) {
-            return bind(idLocker, null);
+            private const val MAX_WAIT_TIME = 10000
+            private const val FACTOR = 1.1
         }
     }
 }
