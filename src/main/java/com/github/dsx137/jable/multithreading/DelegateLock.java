@@ -8,6 +8,13 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Supplier;
 
+/**
+ * <h1>委托锁</h1>
+ *
+ * <p>为锁添加了委托功能</p>
+ *
+ * @param <T> 锁的类型
+ */
 public class DelegateLock<T extends Lock> implements Lock {
 
     @NotNull
