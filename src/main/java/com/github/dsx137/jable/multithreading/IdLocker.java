@@ -10,6 +10,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * <h1>Id锁</h1>
+ *
+ * <p>用于对id对应的对象的操作进行加锁</p>
+ */
 public class IdLocker {
 
     protected final Map<String, ReentrantLock> idLocks = new ConcurrentHashMap<>();
@@ -22,6 +27,15 @@ public class IdLocker {
 
     protected final ReentrantReadWriteLock.WriteLock rootLock = this.metaLock.writeLock();
 
+    /**
+     * <h1>计算</h1>
+     * <p>对id对应的对象进行操作</p>
+     *
+     * @param id     id
+     * @param action 操作
+     * @param <Rr>   返回值类型
+     * @return 返回值
+     */
     public <Rr> Rr compute(Object id, Supplier<Rr> action) {
         if (id == null) {
             this.rootLockLock.compute(() -> {
@@ -75,6 +89,16 @@ public class IdLocker {
         });
     }
 
+    /**
+     * <h1>尝试计算</h1>
+     *
+     * <p>对id对应的对象进行操作，如果无法获取锁则抛出异常</p>
+     *
+     * @param id     id
+     * @param action 操作
+     * @param <Rr>   返回值类型
+     * @return 返回值
+     */
     public <Rr> Rr tryCompute(Object id, Supplier<Rr> action) {
         if (id == null) {
             this.rootLockLock.compute(() -> {
@@ -158,25 +182,29 @@ public class IdLocker {
                 return bind(idLocker, null);
             }
 
+            /**
+             * <h1>计算</h1>
+             *
+             * <p>使用循环获取锁，如果无法获取，则释放持有的锁然后continue</p>
+             *
+             * @param action 操作
+             */
             @SuppressWarnings("unchecked")
             public <R> R compute(Supplier<R> action) {
-                return (R) this.function.apply(action);
-            }
-
-            public void compute(Runnable action) {
-                boolean isSuccessful = false;
-
-                while (!isSuccessful) {
+                while (true) {
                     try {
-                        this.function.apply(() -> {
-                            action.run();
-                            return null;
-                        });
-                        isSuccessful = true;
+                        return (R) this.function.apply(action);
                     } catch (TryComputeException ignored) {
                         Useless.useless();
                     }
                 }
+            }
+
+            public void compute(Runnable action) {
+                this.compute(() -> {
+                    action.run();
+                    return null;
+                });
             }
         }
 
