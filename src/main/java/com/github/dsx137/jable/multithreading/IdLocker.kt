@@ -156,54 +156,58 @@ class IdLocker {
      * <p>要同时获取多个锁时请使用链</p>
      */
     class ComputeChain private constructor() {
+        class Builder internal constructor(
+            private var function: (() -> Any?) -> Any?,
+        ) {
 
-        companion object {
-            class Builder internal constructor(
-                private var function: (() -> Any?) -> Any?,
-            ) {
+            fun bind(idLocker: IdLocker, id: Any?): Builder {
+                return Builder { f -> this.function { idLocker.tryCompute(id, f) } }
+            }
 
-                fun bind(idLocker: IdLocker, id: Any?): Builder {
-                    return Builder { f -> this.function { idLocker.tryCompute(id, f) } }
-                }
+            fun bind(idLocker: IdLocker): Builder {
+                return bind(idLocker, null)
+            }
 
-                fun bind(idLocker: IdLocker): Builder {
-                    return bind(idLocker, null)
-                }
-
-                /**
-                 * <h1>计算</h1>
-                 *
-                 * <p>使用循环获取锁，如果无法获取，则释放持有的锁然后continue</p>
-                 * <p>使用指数退避算法</p>
-                 *
-                 * @param action 操作
-                 */
-                @Suppress("UNCHECKED_CAST")
-                fun <R> compute(action: () -> R): R {
-                    var retries = 0
-                    val random = ThreadLocalRandom.current()
-                    while (true) {
+            /**
+             * <h1>计算</h1>
+             *
+             * <p>使用循环获取锁，如果无法获取，则释放持有的锁然后continue</p>
+             * <p>使用指数退避算法</p>
+             *
+             * @param action 操作
+             */
+            @Suppress("UNCHECKED_CAST")
+            fun <R> compute(action: () -> R): R {
+                var retries = 0
+                val random = ThreadLocalRandom.current()
+                while (true) {
+                    try {
+                        return this.function(action) as R
+                    } catch (ignored: TryComputeException) {
                         try {
-                            return this.function(action) as R
-                        } catch (ignored: TryComputeException) {
-                            try {
-                                val rawWaitTime = min(MAX_WAIT_TIME, FACTOR.pow(retries).toInt())
-                                val waitTime = rawWaitTime + random.nextInt(rawWaitTime)
-                                retries++
-                                Thread.sleep(waitTime.toLong())
-                            } catch (e: InterruptedException) {
-                                Thread.currentThread().interrupt()
-                                throw RuntimeException("Thread interrupted", e)
-                            }
+                            val rawWaitTime = min(MAX_WAIT_TIME, FACTOR.pow(retries).toInt())
+                            val waitTime = rawWaitTime + random.nextInt(rawWaitTime)
+                            retries++
+                            Thread.sleep(waitTime.toLong())
+                        } catch (e: InterruptedException) {
+                            Thread.currentThread().interrupt()
+                            throw RuntimeException("Thread interrupted", e)
                         }
                     }
                 }
-
-                fun compute(action: Runnable) {
-                    this.compute { action.run() }
-                }
             }
 
+            fun compute(action: Runnable) {
+                this.compute { action.run() }
+            }
+
+            companion object {
+                private const val MAX_WAIT_TIME = 10000
+                private const val FACTOR = 1.1
+            }
+        }
+
+        companion object {
             @JvmStatic
             fun bind(idLocker: IdLocker, id: Any?): Builder {
                 return Builder { f -> idLocker.tryCompute(id, f) }
@@ -213,9 +217,6 @@ class IdLocker {
             fun bind(idLocker: IdLocker): Builder {
                 return bind(idLocker, null)
             }
-
-            private const val MAX_WAIT_TIME = 10000
-            private const val FACTOR = 1.1
         }
     }
 }
