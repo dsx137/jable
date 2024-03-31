@@ -7,6 +7,6 @@ repositories {
     }
 }
 dependencies {
-    compileOnly("com.github.dsx137:jable:main-SNAPSHOT")
+    implementation("com.github.dsx137:jable:main-SNAPSHOT")
 }
 ```

@@ -1,7 +1,9 @@
 package com.github.dsx137.jable.multithreading;
 
 import com.github.dsx137.jable.base.Wrapper;
+import com.github.dsx137.jable.exception.TryComputeException;
 
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -11,39 +13,47 @@ import java.util.function.Function;
  *
  * @param <T> 值的类型
  */
-public class Locker<T> {
-    private final ReentrantLock lock = new ReentrantLock();
+public class Locker<T,L extends Lock> {
+    private final DelegateLock<?> lock ;
     private final Wrapper<T> value;
 
-    public Locker(T value) {
+    public Locker(T value,L lock) {
         this.value = Wrapper.of(value);
+        this.lock = DelegateLock.of(lock);
     }
 
     public <R> R compute(Function<Wrapper<T>, R> action) {
-        this.lock.lock();
-        R res;
-        try {
-            res = action.apply(this.value);
-        } finally {
-            this.lock.unlock();
-        }
-        return res;
+        return this.lock.compute(()->
+            action.apply(this.value)
+        );
     }
 
     public void compute(Consumer<Wrapper<T>> action) {
-        this.lock.lock();
-        try {
-            action.accept(this.value);
-        } finally {
-            this.lock.unlock();
-        }
+        this.lock.compute(()->
+            action.accept(this.value)
+        );
     }
 
-    public static <D> Locker<D> of(D value) {
-        return new Locker<>(value);
+    public <R> R tryCompute(Function<Wrapper<T>, R> action) {
+        return this.lock.tryCompute(()->
+            action.apply(this.value)
+        );
     }
 
-    public static <D> Locker<D> empty() {
-        return new Locker<>(null);
+    public void tryCompute(Consumer<Wrapper<T>> action) {
+        this.lock.tryCompute(()->
+            action.accept(this.value)
+        );
+    }
+    public static <T,L extends Lock> Locker<T,L> of(T value,L lock) {
+        return new Locker<>(value,lock);
+    }
+
+    public static <T> Locker<T, ReentrantLock> empty() {
+        return new Locker<>(null,new ReentrantLock());
+    }
+
+    public static <T,L extends Lock> Locker<T,L> empty(L lock) {
+        return new Locker<>(null,lock);
     }
 }
