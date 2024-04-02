@@ -210,7 +210,7 @@ open class IdLocker {
         companion object {
             @JvmStatic
             fun bind(idLocker: IdLocker, id: Any?): Builder {
-                return Builder { f -> idLocker.tryCompute(id, f) }
+                return Builder { f -> idLocker.compute(id, f) }
             }
 
             @JvmStatic
