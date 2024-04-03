@@ -10,7 +10,7 @@ import kotlin.contracts.contract
  *
  * 需要Apache Commons Pool2库
  */
-class DelegateObjectPool<T>(factory: PooledObjectFactory<T>) : GenericObjectPool<T>(factory) {
+class DelegatingObjectPool<T>(factory: PooledObjectFactory<T>) : GenericObjectPool<T>(factory) {
     @OptIn(ExperimentalContracts::class)
     fun <R> execute(action: T.() -> R): R {
         contract {
