@@ -37,7 +37,7 @@ open class IdLocker {
      * @param <Rr>   返回值类型
      * @return 返回值
      */
-    fun <R> compute(id: Any?, action: () -> R): R {
+    open fun <R> compute(id: Any?, action: () -> R): R {
         if (id == null) {
             this.rootLockLock.withLock {
                 while (this.metaLock.readHoldCount > 0) {
@@ -72,15 +72,15 @@ open class IdLocker {
         }
     }
 
-    fun <R> compute(action: () -> R): R {
+    open fun <R> compute(action: () -> R): R {
         return this.compute(null) { action.invoke() }
     }
 
-    fun compute(id: Any?, action: Runnable) {
+    open fun compute(id: Any?, action: Runnable) {
         this.compute(id) { action.run() }
     }
 
-    fun compute(action: Runnable) {
+    open fun compute(action: Runnable) {
         this.compute(null) { action.run() }
     }
 
@@ -94,7 +94,7 @@ open class IdLocker {
      * @param <Rr>   返回值类型
      * @return 返回值
      */
-    fun <R> tryCompute(id: Any?, action: () -> R): R {
+    open fun <R> tryCompute(id: Any?, action: () -> R): R {
         if (id == null) {
             this.rootLockLock.withLock {
                 while (this.metaLock.readHoldCount > 0) {
@@ -138,15 +138,15 @@ open class IdLocker {
         }
     }
 
-    fun <R> tryCompute(action: () -> R): R {
+    open fun <R> tryCompute(action: () -> R): R {
         return this.tryCompute(null) { action.invoke() }
     }
 
-    fun tryCompute(id: Any?, action: Runnable) {
+    open fun tryCompute(id: Any?, action: Runnable) {
         this.tryCompute(id) { action.run() }
     }
 
-    fun tryCompute(action: Runnable) {
+    open fun tryCompute(action: Runnable) {
         this.tryCompute { action.run() }
     }
 
@@ -155,16 +155,16 @@ open class IdLocker {
      *
      * <p>要同时获取多个锁时请使用链</p>
      */
-    class ComputeChain private constructor() {
-        class Builder internal constructor(
+    open class ComputeChain private constructor() {
+        open class Builder internal constructor(
             private var function: (() -> Any?) -> Any?,
         ) {
 
-            fun bind(idLocker: IdLocker, id: Any?): Builder {
+            open fun bind(idLocker: IdLocker, id: Any?): Builder {
                 return Builder { f -> this.function { idLocker.tryCompute(id, f) } }
             }
 
-            fun bind(idLocker: IdLocker): Builder {
+            open fun bind(idLocker: IdLocker): Builder {
                 return bind(idLocker, null)
             }
 
@@ -177,7 +177,7 @@ open class IdLocker {
              * @param action 操作
              */
             @Suppress("UNCHECKED_CAST")
-            fun <R> compute(action: () -> R): R {
+            open fun <R> compute(action: () -> R): R {
                 var retries = 0
                 val random = ThreadLocalRandom.current()
                 while (true) {
@@ -197,7 +197,7 @@ open class IdLocker {
                 }
             }
 
-            fun compute(action: Runnable) {
+            open fun compute(action: Runnable) {
                 this.compute { action.run() }
             }
 
