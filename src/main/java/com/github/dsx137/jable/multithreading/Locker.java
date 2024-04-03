@@ -14,12 +14,12 @@ import java.util.function.Function;
  * @param <L> 锁的类型
  */
 public class Locker<T, L extends Lock> {
-    private final DelegateLock<?> lock;
+    private final DelegatingLock<?> lock;
     private final Wrapper<T> value;
 
     public Locker(T value, L lock) {
         this.value = Wrapper.of(value);
-        this.lock = DelegateLock.of(lock);
+        this.lock = DelegatingLock.of(lock);
     }
 
     public <R> R compute(Function<Wrapper<T>, R> action) {

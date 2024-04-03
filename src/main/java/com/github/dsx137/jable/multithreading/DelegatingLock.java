@@ -15,12 +15,12 @@ import java.util.function.Supplier;
  *
  * @param <T> 锁的类型
  */
-public class DelegateLock<T extends Lock> implements Lock {
+public class DelegatingLock<T extends Lock> implements Lock {
 
     @NotNull
     private final T lock;
 
-    public DelegateLock(@NotNull T lock) {
+    public DelegatingLock(@NotNull T lock) {
         this.lock = lock;
     }
 
@@ -148,7 +148,7 @@ public class DelegateLock<T extends Lock> implements Lock {
         }
     }
 
-    public static <D extends Lock> DelegateLock<D> of(D lock) {
-        return new DelegateLock<>(lock);
+    public static <D extends Lock> DelegatingLock<D> of(D lock) {
+        return new DelegatingLock<>(lock);
     }
 }
