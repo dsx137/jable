@@ -6,24 +6,30 @@ val projectRepository: String by project
 val projectLicense: String by project
 
 plugins {
-    id("java")
+    java
+    `maven-publish`
+    eclipse
+    idea
+    `java-library`
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("maven-publish")
     kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
+    kotlin("kapt") version "1.9.22"
 }
 
 group = projectGroup
 version = projectVersion
 
 repositories {
-    maven()
-    {
+    maven {
         url = uri("https://maven.aliyun.com/repository/public/")
     }
-    maven() {
+    maven {
         url = uri("https://maven.aliyun.com/repository/spring/")
     }
+    maven("jitpack") {
+        url = uri("https://jitpack.io")
+    }
+    mavenLocal()
     mavenCentral()
 }
 
