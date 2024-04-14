@@ -32,8 +32,8 @@ class CheckException @JvmOverloads constructor(
          * @throws CheckException 如果候选者的状态未通过验证，则抛出异常
          */
         @JvmName("checkWithBooleanValidators")
-        fun <T> check(state: String, candidate: T, validators: List<Pair<String, Function<T, Boolean>>>) {
-            validators.firstOrNull { (_, validator) -> validator.apply(candidate) }?.let {
+        fun <T> check(state: String, candidate: T, validators: List<Pair<String, T.() -> Boolean>>) {
+            validators.firstOrNull { (_, validator) -> validator(candidate) }?.let {
                 throw CheckException(state, it.first, candidate)
             }
         }
