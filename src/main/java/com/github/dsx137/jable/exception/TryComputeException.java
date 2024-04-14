@@ -6,5 +6,4 @@ package com.github.dsx137.jable.exception;
  * <p>当尝试计算失败时抛出</p>
  */
 public class TryComputeException extends RuntimeException {
-
 }
