@@ -14,11 +14,6 @@ dependencies {
 
     // Pool2
     implementation("org.apache.commons:commons-pool2:2.12.0")
-
-    // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 }
 ```
 
