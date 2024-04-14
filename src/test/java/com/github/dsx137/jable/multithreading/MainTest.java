@@ -8,4 +8,5 @@ public class MainTest {
         RandomNickname randomNickname = new RandomNickname();
         System.out.println(randomNickname.generate(100));
     }
+
 }

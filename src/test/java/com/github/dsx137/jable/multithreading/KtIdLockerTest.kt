@@ -1,5 +1,7 @@
 package com.github.dsx137.jable.multithreading
 
+import com.github.dsx137.jable.exception.CheckException
+
 class KtIdLockerTest {
     companion object {
         @JvmStatic
@@ -10,5 +12,14 @@ class KtIdLockerTest {
                 1
             }
         }
+    }
+
+    fun checkUsernameSyntax(username: String?) {
+        CheckException.check(
+            "无效的用户名", username, listOf(
+                "用户名不能为空" to { isNullOrEmpty() },
+                "用户名必须为学号" to { this?.toInt() !in 2000000000..2030000000 },
+            )
+        )
     }
 }

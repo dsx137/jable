@@ -64,6 +64,3 @@ class CheckException @JvmOverloads constructor(
     }
 }
 
-infix fun <T> String.to(function: (T) -> Boolean): Pair<String, Function<T, Boolean>> {
-    return Pair(this, Function(function))
-}
