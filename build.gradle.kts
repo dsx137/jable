@@ -39,6 +39,15 @@ dependencies {
 
     // Pool2
     compileOnly("org.apache.commons:commons-pool2:2.12.0")
+    testImplementation("org.apache.commons:commons-pool2:2.12.0")
+    
+    // Apache Logging
+    compileOnly("org.apache.logging.log4j:log4j-api:2.23.1")
+    testImplementation("org.apache.logging.log4j:log4j-core:2.13.3")
+
+    // Slf4j
+    compileOnly("org.slf4j:slf4j-api:2.0.12")
+    testImplementation("org.slf4j:slf4j-simple:2.0.12")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
