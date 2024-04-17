@@ -1,5 +1,6 @@
 package com.github.dsx137.jable.misc
 
+import java.util.logging.Logger
 import java.util.stream.Stream
 
 fun Boolean?.yes(predicate: () -> Unit): Boolean {
@@ -26,3 +27,6 @@ fun <E, T : Iterable<E>> T.forEachThen(predicate: (E) -> Unit): T {
 fun <T> Stream<T?>.filterNotNull(): Stream<T> {
     return this.filter { it != null }.map { it!! }
 }
+
+val <T : Any> T.logger: Logger
+    get() = Logger.getLogger(this::class.java.name)
