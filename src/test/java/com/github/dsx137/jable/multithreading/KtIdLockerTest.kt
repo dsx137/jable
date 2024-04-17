@@ -1,6 +1,7 @@
 package com.github.dsx137.jable.multithreading
 
 import com.github.dsx137.jable.exception.CheckException
+import com.github.dsx137.jable.extension.slf4jLogger
 
 class KtIdLockerTest {
     companion object {
@@ -11,6 +12,7 @@ class KtIdLockerTest {
                 println("1")
                 1
             }
+            slf4jLogger.info("number: $number")
         }
     }
 
