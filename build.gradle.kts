@@ -40,7 +40,7 @@ dependencies {
     // Pool2
     compileOnly("org.apache.commons:commons-pool2:2.12.0")
     testImplementation("org.apache.commons:commons-pool2:2.12.0")
-    
+
     // Apache Logging
     compileOnly("org.apache.logging.log4j:log4j-api:2.23.1")
     testImplementation("org.apache.logging.log4j:log4j-core:2.13.3")
@@ -74,6 +74,10 @@ tasks.jar {
 
 tasks.shadowJar {
     minimize()
+}
+
+tasks.build {
+    dependsOn("shadowJar")
 }
 
 publishing {
