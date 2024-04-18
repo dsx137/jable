@@ -1,9 +1,8 @@
 package com.github.dsx137.jable.extension
 
-fun Boolean?.yes(predicate: () -> Unit): Boolean {
-    return this.takeIf { it == true }?.apply { predicate() } ?: false
-}
+fun Boolean.yes(predicate: () -> Unit): Boolean = this.also { if (it) predicate() }
+fun Boolean.no(predicate: () -> Unit): Boolean = this.also { if (!it) predicate() }
 
-fun Boolean?.no(predicate: () -> Unit): Boolean {
-    return this.takeIf { it == false || it == null }?.apply { predicate() } ?: false
-}
+fun Boolean.nor(boolean: Boolean): Boolean = !(this || boolean)
+fun Boolean.nand(boolean: Boolean): Boolean = !(this && boolean)
+fun Boolean.xnor(boolean: Boolean): Boolean = this == boolean
