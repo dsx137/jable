@@ -33,6 +33,10 @@ repositories {
 }
 
 dependencies {
+    val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib:1.9.23"
+    val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:1.9.23"
+    val kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0"
+
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
@@ -49,9 +53,12 @@ dependencies {
     testImplementation("org.slf4j:slf4j-simple:2.0.12")
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.23")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.23")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+    compileOnly(kotlinStdLib)
+    compileOnly(kotlinReflect)
+    compileOnly(kotlinxCoroutinesCore)
+    testImplementation(kotlinStdLib)
+    testImplementation(kotlinReflect)
+    testImplementation(kotlinxCoroutinesCore)
 }
 
 tasks.test {
