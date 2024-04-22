@@ -83,10 +83,11 @@ publishing {
         create<MavenPublication>("maven") {
             from(components["java"])
             artifactId = projectId
+            groupId = projectGroup
+            version = projectVersion
             pom {
                 name.set(projectName)
                 url.set(projectRepository)
-                groupId = projectGroup
                 licenses {
                     license {
                         name.set(projectLicense)
