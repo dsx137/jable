@@ -72,10 +72,6 @@ tasks.jar {
     }
 }
 
-tasks.build {
-    dependsOn("shadowJar")
-}
-
 publishing {
     publications {
         create<MavenPublication>("maven") {
