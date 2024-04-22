@@ -11,7 +11,6 @@ plugins {
     eclipse
     idea
     `java-library`
-    id("com.github.johnrengelman.shadow") version "7.1.2"
     kotlin("jvm") version "1.9.23"
     kotlin("kapt") version "1.9.23"
 }
