@@ -50,9 +50,9 @@ dependencies {
     testImplementation("org.slf4j:slf4j-simple:2.0.12")
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
+    compileOnly("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 }
 
 tasks.test {
@@ -70,10 +70,6 @@ tasks.jar {
             "Implementation-Version" to projectVersion
         )
     }
-}
-
-tasks.shadowJar {
-    minimize()
 }
 
 tasks.build {
