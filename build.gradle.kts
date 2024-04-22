@@ -12,8 +12,8 @@ plugins {
     idea
     `java-library`
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    kotlin("jvm") version "1.9.22"
-    kotlin("kapt") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
+    kotlin("kapt") version "1.9.23"
 }
 
 group = projectGroup
@@ -50,8 +50,8 @@ dependencies {
     testImplementation("org.slf4j:slf4j-simple:2.0.12")
 
     // Kotlin
-    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
-    compileOnly("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.9.23")
+    compileOnly("org.jetbrains.kotlin:kotlin-reflect:1.9.23")
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 }
 
