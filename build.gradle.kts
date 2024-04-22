@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
+
 val projectGroup: String by project
 val projectVersion: String by project
 val projectName: String by project
@@ -82,9 +84,9 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
-            artifactId = projectId
-            groupId = projectGroup
-            version = projectVersion
+            artifactId = project.archivesName.get()
+            groupId = project.group.toString()
+            version = project.version.toString()
             pom {
                 name.set(projectName)
                 url.set(projectRepository)
