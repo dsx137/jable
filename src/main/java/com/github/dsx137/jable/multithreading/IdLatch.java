@@ -21,6 +21,18 @@ public class IdLatch<T> {
         this.timeUnit = timeUnit;
     }
 
+    public IdLatch(int downCount) {
+        this(downCount, 0, TimeUnit.MILLISECONDS);
+    }
+
+    public IdLatch(int downCount, long timeout) {
+        this(downCount, timeout, TimeUnit.MILLISECONDS);
+    }
+
+    public IdLatch(long timeout, TimeUnit timeUnit) {
+        this(1, timeout, timeUnit);
+    }
+
     public IdLatch() {
         this(1, 0, TimeUnit.MILLISECONDS);
     }
