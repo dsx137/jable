@@ -56,7 +56,9 @@ public class IdLatch<T> {
     public long countDown(T id, int num) {
         CountDownLatch latch = latches.get(id);
         if (latch != null) {
-            latch.countDown();
+            for (int i = 0; i < num; i++) {
+                latch.countDown();
+            }
             long count = latch.getCount();
             if (latch.getCount() == 0) {
                 latches.remove(id);
