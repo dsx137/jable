@@ -47,18 +47,15 @@ public class IdLatch<T> {
     }
 
     /**
-     * 唤醒
+     * 唤醒一次
      *
-     * @param id  唤醒ID
-     * @param num 唤醒数量
+     * @param id 唤醒ID
      * @return 剩余等待数
      */
-    public long countDown(T id, int num) {
+    public long countDown(T id) {
         CountDownLatch latch = latches.get(id);
         if (latch != null) {
-            for (int i = 0; i < num; i++) {
-                latch.countDown();
-            }
+            latch.countDown();
             long count = latch.getCount();
             if (latch.getCount() == 0) {
                 latches.remove(id);
@@ -67,15 +64,5 @@ public class IdLatch<T> {
         } else {
             return 0;
         }
-    }
-
-    /**
-     * 唤醒一次
-     *
-     * @param id 唤醒ID
-     * @return 剩余等待数
-     */
-    public long countDown(T id) {
-        return this.countDown(id, 1);
     }
 }

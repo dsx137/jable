@@ -18,7 +18,7 @@ public class MainTest {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            bus.countDown(uuid);
+            bus.release(uuid);
         });
 
         Thread t2 = new Thread(() -> {
