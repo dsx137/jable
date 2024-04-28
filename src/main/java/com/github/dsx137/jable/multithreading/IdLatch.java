@@ -9,19 +9,19 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <T> 睡眠/唤醒的ID类型
  */
-public class LatchDispatcher<T> {
+public class IdLatch<T> {
     private final ConcurrentHashMap<T, CountDownLatch> latches = new ConcurrentHashMap<>();
     private final int downCount; // 等待次数
     private final long timeout; // 超时时间
     private final TimeUnit timeUnit; // 超时时间单位
 
-    public LatchDispatcher(int downCount, long timeout, TimeUnit timeUnit) {
+    public IdLatch(int downCount, long timeout, TimeUnit timeUnit) {
         this.downCount = downCount;
         this.timeout = timeout;
         this.timeUnit = timeUnit;
     }
 
-    public LatchDispatcher() {
+    public IdLatch() {
         this(1, 0, TimeUnit.MILLISECONDS);
     }
 

@@ -8,7 +8,7 @@ import static java.lang.Thread.sleep;
 public class MainTest {
 
     public static void main(String[] args) {
-        LatchDispatcher<String> bus = new LatchDispatcher<>(1, 500, TimeUnit.MILLISECONDS);
+        IdLatch<String> bus = new IdLatch<>(1, 500, TimeUnit.MILLISECONDS);
 
         String uuid = UUID.randomUUID().toString();
 
