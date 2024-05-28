@@ -15,6 +15,7 @@ plugins {
     `java-library`
     kotlin("jvm") version "1.9.23"
     kotlin("kapt") version "1.9.23"
+    kotlin("plugin.lombok") version "1.9.23"
 }
 
 group = projectGroup
