@@ -17,16 +17,16 @@ public class IdLockerTest {
     private static final AtomicInteger counter = new AtomicInteger(0);
 
     public static int test() {
-        final IdLocker locker1 = new IdLocker();
-        final IdLocker locker2 = new IdLocker();
-        final IdLocker locker3 = new IdLocker();
+        final IdLock locker1 = new IdLock();
+        final IdLock locker2 = new IdLock();
+        final IdLock locker3 = new IdLock();
         ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
         CountDownLatch latch = new CountDownLatch(numberOfThreads * 3);
         Date startDate = new Date();
 
         for (int i = 0; i < numberOfThreads; i++) {
             executor.submit(() -> {
-                IdLocker.ComputeChain
+                IdLock.ComputeChain
                         .bind(locker1, new Random().nextInt(3))
                         .bind(locker3, new Random().nextInt(3))
                         .compute(() -> {
@@ -40,7 +40,7 @@ public class IdLockerTest {
                 latch.countDown();
             });
             executor.submit(() -> {
-                IdLocker.ComputeChain
+                IdLock.ComputeChain
                         .bind(locker2, new Random().nextInt(3))
                         .bind(locker1, new Random().nextInt(3))
                         .compute(() -> {
@@ -54,7 +54,7 @@ public class IdLockerTest {
                 latch.countDown();
             });
             executor.submit(() -> {
-                IdLocker.ComputeChain
+                IdLock.ComputeChain
                         .bind(locker3, new Random().nextInt(3))
                         .bind(locker2, new Random().nextInt(3))
                         .bind(locker1, new Random().nextInt(3))
