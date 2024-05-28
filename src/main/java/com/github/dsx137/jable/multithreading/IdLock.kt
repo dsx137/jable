@@ -14,7 +14,7 @@ import kotlin.math.pow
  *
  * <p>用于对id对应的对象的操作进行加锁</p>
  */
-open class IdLocker {
+open class IdLock {
 
     private val idLocks: ConcurrentHashMap<String, ReentrantLock> = ConcurrentHashMap()
 
@@ -160,12 +160,12 @@ open class IdLocker {
             private var function: (() -> Any?) -> Any?,
         ) {
 
-            open fun bind(idLocker: IdLocker, id: Any?): Builder {
-                return Builder { f -> this.function { idLocker.tryCompute(id, f) } }
+            open fun bind(idLock: IdLock, id: Any?): Builder {
+                return Builder { f -> this.function { idLock.tryCompute(id, f) } }
             }
 
-            open fun bind(idLocker: IdLocker): Builder {
-                return bind(idLocker, null)
+            open fun bind(idLock: IdLock): Builder {
+                return bind(idLock, null)
             }
 
             /**
@@ -209,13 +209,13 @@ open class IdLocker {
 
         companion object {
             @JvmStatic
-            fun bind(idLocker: IdLocker, id: Any?): Builder {
-                return Builder { f -> idLocker.compute(id, f) }
+            fun bind(idLock: IdLock, id: Any?): Builder {
+                return Builder { f -> idLock.compute(id, f) }
             }
 
             @JvmStatic
-            fun bind(idLocker: IdLocker): Builder {
-                return bind(idLocker, null)
+            fun bind(idLock: IdLock): Builder {
+                return bind(idLock, null)
             }
         }
     }
