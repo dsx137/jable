@@ -1,9 +1,7 @@
 package com.github.dsx137.jable.extension
 
-import java.util.logging.Logger
-
-val <T : Any> T.logger: Logger
-    get() = Logger.getLogger(this::class.java.name)
+val <T : Any> T.logger: java.util.logging.Logger
+    get() = java.util.logging.Logger.getLogger(this::class.java.name)
 
 val <T : Any> T.slf4j: org.slf4j.Logger
     get() = org.slf4j.LoggerFactory.getLogger(this::class.java.name)
