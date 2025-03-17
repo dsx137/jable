@@ -7,12 +7,14 @@ val projectId: String by project
 val projectRepository: String by project
 val projectLicense: String by project
 
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+
 plugins {
     java
-    `maven-publish`
     eclipse
     idea
     `java-library`
+    `maven-publish`
     kotlin("jvm") version "1.9.23"
     kotlin("kapt") version "1.9.23"
     kotlin("plugin.lombok") version "1.9.23"
@@ -22,15 +24,9 @@ group = projectGroup
 version = projectVersion
 
 repositories {
-    maven {
-        url = uri("https://maven.aliyun.com/repository/public/")
-    }
-    maven {
-        url = uri("https://maven.aliyun.com/repository/spring/")
-    }
-    maven("jitpack") {
-        url = uri("https://jitpack.io")
-    }
+    maven { url = uri("https://maven.aliyun.com/repository/public/") }
+    maven { url = uri("https://maven.aliyun.com/repository/spring/") }
+    maven("jitpack") { url = uri("https://jitpack.io") }
     mavenLocal()
     mavenCentral()
 }
@@ -64,13 +60,7 @@ dependencies {
     testImplementation(kotlinxCoroutinesCore)
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(8))
-}
+tasks.test { useJUnitPlatform() }
 
 tasks.jar {
     manifest {
