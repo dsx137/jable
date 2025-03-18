@@ -5,22 +5,26 @@ package com.github.dsx137.jable.base;
  */
 public class OneShotBoolean extends Property<Boolean> {
     public OneShotBoolean() {
-        super(false,
+        super(
+                false,
                 wov -> {
                     boolean v = wov.get();
                     wov.set(false);
                     return v;
                 },
-                Wrapper::set);
+                Wrapper::set
+        );
     }
 
     public OneShotBoolean(boolean origin) {
-        super(origin,
+        super(
+                origin,
                 wov -> {
                     boolean v = wov.get();
                     wov.set(false);
                     return v;
                 },
-                Wrapper::set);
+                Wrapper::set
+        );
     }
 }
